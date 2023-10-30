@@ -2,11 +2,17 @@ package com.example.demo.services;
 
 import com.example.demo.controllers.TaskController;
 import com.example.demo.models.TaskModel;
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.ArrayList;
 
@@ -27,26 +33,30 @@ public class TaskService {
         }
     }
 
-    public TaskModel addTask(TaskModel task) {
-        System.out.println(task.getId());
-        System.out.println(task.getDescription());
-        System.out.println(task.getExpirationDate());
-        System.out.println(task.getDone());
-        tasks.add(task);
-        return task;
+    public ResponseEntity<TaskModel> addTask(TaskModel task) {
+        try {
+            System.out.println(task.getId());
+            System.out.println(task.getDescription());
+            System.out.println(task.getExpirationDate());
+            System.out.println(task.getDone());
+            tasks.add(task);
+            return new ResponseEntity("Task adicionada com sucesso.", HttpStatus.OK);
+        } catch (Exception ex){
+            return new ResponseEntity("Erro. Verifique se os dados estão passados corretamente", HttpStatus.BAD_REQUEST);
+        }
     }
 
     public ResponseEntity<String> editTaskPostMapping(String taskId, TaskModel taskToEdit) {
         for (TaskModel task : tasks) {
             if (task.getId().equals(taskId)) {
-                task.setId(taskToEdit.getId());
-                task.setDescription(taskToEdit.getDescription());
-                task.setExpirationDate(taskToEdit.getExpirationDate());
-                task.setDone(taskToEdit.getDone());
-                return ResponseEntity.ok("Alterado com sucesso");
+                    task.setId(taskToEdit.getId());
+                    task.setDescription(taskToEdit.getDescription());
+                    task.setExpirationDate(taskToEdit.getExpirationDate());
+                    task.setDone(taskToEdit.getDone());
+                    return ResponseEntity.ok("Alterado com sucesso");
             }
         }
-        return ResponseEntity.ofNullable("Erro.");
+        return new ResponseEntity<>("Erro. ID inexistente.", HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<String> deleteTask(String taskId) {
@@ -56,6 +66,7 @@ public class TaskService {
                 return ResponseEntity.ok("Tarefa de id " + taskId + " foi removida com sucesso");
             }
         }
-        return ResponseEntity.ofNullable("Erro.");
+        return ResponseEntity.ofNullable("Erro.Erro. ID inexistente ou digitado de forma incorreta.");
     }
 }
+
