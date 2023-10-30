@@ -33,7 +33,7 @@ public class TaskController {
     }
 
     @PostMapping(value = "/tasks/add", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public TaskModel addTaskPostMapping(@RequestBody TaskModel task){
+    public ResponseEntity<TaskModel> addTaskPostMapping(@RequestBody TaskModel task){
         return taskService.addTask(task);
     }
 
